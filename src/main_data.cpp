@@ -54,6 +54,9 @@
 #elif defined(__APPLE__) && TARGET_OS_OSX
 #  include <sys/syslimits.h>
 #  include "platform/macos/utils.h"
+#elif defined(__MORPHOS__)
+unsigned long __stack = 100000;
+static const char *version __attribute__((used)) = "$VER: " PACKAGE_STRING " ";
 #endif
 
 // Global variables.

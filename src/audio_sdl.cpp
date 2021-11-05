@@ -56,7 +56,7 @@ AudioDecoder::Format sdl_format_to_format(Uint16 format) {
 			return AudioDecoder::Format::U16;
 		case AUDIO_S16SYS:
 			return AudioDecoder::Format::S16;
-#if SDL_MAJOR_VERSION > 1
+#if SDL_MAJOR_VERSION > 1 && !defined(__MORPHOS__)
 		case AUDIO_S32:
 			return AudioDecoder::Format::S32;
 		case AUDIO_F32:
@@ -98,7 +98,11 @@ SdlAudio::SdlAudio() :
 	SDL_AudioSpec want = {};
 	SDL_AudioSpec have = {};
 	want.freq = frequency;
+#ifdef __MORPHOS__
+	want.format = AUDIO_S16SYS;
+#else
 	want.format = AUDIO_S16;
+#endif
 	want.channels = 2;
 	want.samples = 2048;
 	want.callback = sdl_audio_callback;

@@ -218,6 +218,15 @@ bool WildMidiDecoder::Initialize(std::string& error_message) {
 		config_file = "wildmidi.cfg";
 		found = FileFinder::Root().Exists(config_file);
 	}
+#elif defined(__MORPHOS__) 
+	if (!found) {
+		config_file = "LIBS:timidity/timidity.cfg";
+		found = FileFinder::Root().Exists(config_file);
+	}
+	if (!found) {
+		config_file = "wildmidi.cfg";
+		found = FileFinder::Root().Exists(config_file);
+	}
 #else
 	// Prefer wildmidi in current directory
 	config_file = "wildmidi.cfg";
@@ -254,11 +263,12 @@ bool WildMidiDecoder::Initialize(std::string& error_message) {
 
 	// TODO: We need some installer which creates registry keys for wildmidi
 
-#  elif defined(__MORPHOS__) || defined(__amigaos4__) || defined(__AROS__)
+#  elif defined(__amigaos4__) || defined(__AROS__)
 	if (!found) {
 		config_file = "timidity/timidity.cfg";
 		found = FileFinder::Root().Exists(config_file);
 	}
+
 #  else
 	if (!found) {
 		config_file = "/etc/timidity.cfg";
