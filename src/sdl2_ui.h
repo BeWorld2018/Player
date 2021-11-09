@@ -123,6 +123,10 @@ private:
 	SDL_Window* sdl_window = nullptr;
 	SDL_Renderer* sdl_renderer = nullptr;
 
+#if (defined(USE_JOYSTICK) && defined(SUPPORT_JOYSTICK)) || (defined(USE_JOYSTICK_AXIS) && defined(SUPPORT_JOYSTICK_AXIS)) || (defined(USE_JOYSTICK_HAT) && defined(SUPPORT_JOYSTICK_HAT))
+	SDL_Joystick *sdl_joy = nullptr;
+#endif
+
 	std::unique_ptr<AudioInterface> audio_;
 };
 

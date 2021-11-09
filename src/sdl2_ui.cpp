@@ -160,7 +160,10 @@ Sdl2Ui::Sdl2Ui(long width, long height, const Game_ConfigVideo& cfg) : BaseUi(cf
 	}
 
 	SDL_JoystickEventState(1);
-	SDL_JoystickOpen(0);
+	sdl_joy = SDL_JoystickOpen(0);
+	if (sdl_joy) {
+		Output::Debug("SDL2: joystick {}", SDL_JoystickNameForIndex(0));
+	}
 #endif
 
 #if defined(USE_MOUSE) && defined(SUPPORT_MOUSE)
@@ -180,6 +183,11 @@ Sdl2Ui::Sdl2Ui(long width, long height, const Game_ConfigVideo& cfg) : BaseUi(cf
 }
 
 Sdl2Ui::~Sdl2Ui() {
+#if (defined(USE_JOYSTICK) && defined(SUPPORT_JOYSTICK)) || (defined(USE_JOYSTICK_AXIS) && defined(SUPPORT_JOYSTICK_AXIS)) || (defined(USE_JOYSTICK_HAT) && defined(SUPPORT_JOYSTICK_HAT))
+	if (sdl_joy) {
+		SDL_JoystickClose(sdl_joy);	
+	}
+#endif
 	if (sdl_texture) {
 		SDL_DestroyTexture(sdl_texture);
 	}
@@ -295,11 +303,9 @@ bool Sdl2Ui::RefreshDisplayMode() {
 
 		uint32_t rendered_flag = 0;
 
-#ifndef __MORPHOS__
 		if (vsync) {
 			rendered_flag |= SDL_RENDERER_PRESENTVSYNC;
 		}
-#endif
 
 		sdl_renderer = SDL_CreateRenderer(sdl_window, -1, rendered_flag);
 		if (!sdl_renderer) {
