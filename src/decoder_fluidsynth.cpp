@@ -33,11 +33,21 @@ static void* vio_open(const char* filename) {
 #else
 static void* vio_open(fluid_fileapi_t*, const char* filename) {
 #endif
+
+#ifdef __MORPHOS__
+	auto is = FileFinder::Root().OpenInputStream(filename);
+	if (!is) {
+			Output::Warning("Fluidsynth: vio_open failed for {}", filename);
+			return nullptr;
+	}
+#else
 	auto is = FileFinder::Game().OpenInputStream(filename);
 	if (!is) {
 		Output::Warning("Fluidsynth: vio_open failed for {}", filename);
 		return nullptr;
 	}
+#endif
+
 	return new Filesystem_Stream::InputStream { std::move(is) };
 }
 
@@ -130,10 +140,17 @@ static fluid_synth_t* create_synth(std::string& error_message) {
 
 	std::string sf_name = "easyrpg.soundfont";
 
-	if (!FileFinder::Game().Exists(sf_name) || fluid_synth_sfload(syn, sf_name.c_str(), 1) == FLUID_FAILED) {
-		error_message = "Could not load soundfont.";
-		return nullptr;
-	}
+#ifdef __MORPHOS__
+		if (fluid_synth_sfload(syn, sf_name.c_str(), 1) == FLUID_FAILED) {
+			error_message = "Could not load soundfont.";
+			return nullptr;
+		}
+#else
+		if (!FileFinder::Game().Exists(sf_name) || fluid_synth_sfload(syn, sf_name.c_str(), 1) == FLUID_FAILED) {
+			error_message = "Could not load soundfont.";
+			return nullptr;
+		}
+#endif
 
 	fluid_synth_set_interp_method(syn, -1, FLUID_INTERP_LINEAR);
 
